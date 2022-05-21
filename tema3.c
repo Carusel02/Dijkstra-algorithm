@@ -2,7 +2,47 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+
+int X = 0 ;
+
+void dfs2(float **matrix, int node, int dim, int *visited) {
+    
+    printf("%d ", node);
+    visited[node] = 1;
  
+    // For every node of the graph
+    for (int i = 0; i < dim ; i++) {
+        
+        if (matrix[node][i] != 0 && (!visited[i])) {
+            dfs2(matrix, i, dim, visited);
+        }
+    }
+
+
+}
+
+
+void dfs(float **matrix, int node, int dim, int *visited, int *stack) {
+    
+
+    stack[X] = node;
+    X++;
+
+
+
+    visited[node] = 1;
+ 
+    // For every node of the graph
+    for (int i = 0; i < dim ; i++) {
+ 
+        if (matrix[node][i] != 0 && (!visited[i])) {
+            dfs(matrix, i, dim, visited, stack);
+        }
+    }
+
+}
+
+
 int delivery(float *distance, int *vis, int *traversal, int dim) {
     float min = 9999; // declarare minim
     int index; // declarare index
@@ -51,13 +91,6 @@ void path(float **matrix, int dim, int start, int *magazine, int nr_magazine)
             }
         }
     }
-
-    // printSolution(dist,dim);
-    // for(int i = 0 ; i < nr_magazine ; i++) {
-    //  printf("%d\n", magazine[i]);
-    //  printf("%.1lf\n", dist[magazine[i]]);
-    // }
-
 
     free(dist);
     free(visit);
@@ -188,6 +221,13 @@ void print_matrix(float **matrix, int dim) {
      }
 }
 
+void trans(float **original, float **copy, int dim) {
+    for(int i = 0 ; i < dim ; i++)
+     for(int j = 0 ; j < dim ; j++)
+      copy[i][j] = original[j][i];
+}
+
+
 
 int main() {
     int number_nodes; // nr noduri
@@ -244,6 +284,65 @@ int main() {
           
           printf("%.1lf",sum);
           free(magazine);
+        }
+
+         if(strstr("e2",arg) != NULL) {
+         
+         printf("depozit id : %d\n",depozite[0]);
+
+
+         int *vector = (int *)malloc(number_nodes * sizeof(int));
+         int *stack = (int *)malloc(number_nodes * sizeof(int));
+         for(int i = 0 ; i < number_nodes ; i++) {
+             vector[i] = 0;
+             stack[i] = -1;
+         }
+
+         dfs(matrix,0,number_nodes,vector,stack);
+
+         float **transpose = (float **)malloc(number_nodes * sizeof(float *));
+         for(int i = 0 ; i < number_nodes ; i++) {
+             transpose[i] = (float *)malloc(number_nodes * sizeof(float));
+         }
+
+         trans(matrix,transpose,number_nodes);
+
+         print_matrix(matrix, number_nodes);
+         printf("\n");
+         print_matrix(transpose, number_nodes);
+         
+         int *stack_trans = (int *)malloc(number_nodes * sizeof(int));
+          
+         for(int i = 0 ; i < number_nodes ; i++) {
+             vector[i] = 0;
+             stack_trans[i] = stack[number_nodes - i - 1];
+         }
+        vector[0] = 1;
+        vector[1] = 1;
+
+         for(int i = 0 ; i < number_nodes ; i++) {
+             printf("order stack : %d\n", stack[i]);
+         }
+
+         for(int i = 0 ; i < number_nodes ; i++) {
+             printf("order reverse stack : %d\n", stack_trans[i]);
+         }
+         
+         for(int i = 0 ; i< number_nodes ; i++) {
+            if(vector[stack_trans[i]] == 0) {
+            dfs2(transpose, stack_trans[i], number_nodes, vector);
+            printf("\n");
+            }
+         }
+
+
+         for (int i = 0; i < number_nodes; i++)
+             free(transpose[i]);
+        
+         free(transpose);
+         free(vector);
+         free(stack);
+         free(stack_trans);
         }
         
         if(nr_cer > 1) {
